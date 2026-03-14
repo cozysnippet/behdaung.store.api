@@ -8,3 +8,17 @@ watch_dir = "src"
 
 [dev]
 port = 3000
+
+# --- PRODUCTION (Default) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "cozy-behdaung-db"
+database_id = "453e8bda-59cb-41b2-b16a-e5aad8f8b2a3" # Copy the full UUID from your dashboard
+
+
+# --- STAGING ---
+[env.staging]
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "cozy-behdaung-staging"
+database_id = "a1d58c40-aa97-4048-89ba-86d66b29bd38"

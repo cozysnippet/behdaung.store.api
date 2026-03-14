@@ -3,15 +3,27 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "dev:staging": "wrangler dev --remote --env staging",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:prod": "wrangler deploy --minify",
+
+    "db:init:staging": "wrangler d1 execute cozy-behdaung-staging --remote --file=./migrations/0001_create_products.sql",
+    "db:list:staging": "wrangler d1 execute cozy-behdaung-staging --remote --command='SELECT * FROM products LIMIT 10;'",
+
+    "db:list:prod": "wrangler d1 execute cozy-behdaung-db --remote --command='SELECT * FROM products LIMIT 10;'",
+    "db:backup:prod": "wrangler d1 export cozy-behdaung-db --remote --output ./backup.sql",
+
     "check": "tsc --noEmit --watch",
-    "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
     "@hono/standard-validator": "^0.2.2",
+    "@hono/swagger-ui": "^0.5.3",
+    "@hono/zod-openapi": "^1.2.2",
     "google-auth-library": "^10.5.0",
     "hono": "^4.11.3",
-    "hono-openapi": "^1.2.0"
+    "hono-openapi": "^1.2.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260103.0",

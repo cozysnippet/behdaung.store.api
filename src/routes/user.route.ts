@@ -1,33 +1,36 @@
-import { Hono } from 'hono'
-import { createFactory } from 'hono/factory'
-import { userService } from '../services/user.service.js'
-import { Optional } from '../utils/optional.js'
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
+import { UserSchema } from '../schemas/user.schema'
+import { z } from 'zod'
 
-// 1. Define your Env (Crucial for Cloudflare later)
-type Env = {
-  Variables: {}
-  Bindings: {}
-}
+const userRoutes = new OpenAPIHono()
 
-// 2. Pass the Env to both the factory and the Hono instance
-const factory = createFactory<Env>()
-const userRoutes = new Hono<Env>()
+// 1. Define the API Contract
+export const getUserRoute = createRoute({
+  method: 'get',
+  path: '/{id}',
+  request: {
+    params: z.object({
+      id: z.string().min(3).openapi({ example: '1212121' })
+    }),
+  },
+  responses: {
+    200: {
+      content: { 'application/json': { schema: UserSchema } },
+      description: 'Retrieve the user details',
+    },
+    404: { description: 'User not found' }
+  },
+})
 
-
-userRoutes.get('/:id', ...factory.createHandlers(async (c) => {
-  // 1. Wrap the param and throw 400 if missing
-  const id = Optional.of(c.req.param('id'))
-    .orElseThrow('ID is required', 400);
-    
-    console.log(`Searching for user with ID: ${id}`)
-
-  // 2. Wrap the service result and throw 404 if user doesn't exist
-  const user = await userService.getUserById(id);
-  
-  const safeUser = Optional.of(user)
-    .orElseThrow('User not found', 404);
-
-  return c.json(safeUser);
-}))
+// 2. Implement the logic
+userRoutes.openapi(getUserRoute, (c) => {
+  const { id } = c.req.valid('param')
+  // In a real app, call your userService.getUserById(id) here
+  return c.json({
+    id,
+    age: 20,
+    name: 'Ultra-man',
+  })
+})
 
 export default userRoutes

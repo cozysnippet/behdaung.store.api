@@ -1,12 +1,13 @@
-// src/types/index.ts
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-}
+import { z } from 'zod';
+import {ProductSchema} from "../schemas/product.schema";
 
-// Global Cloudflare Bindings (D1, KV, etc.)
-export type Bindings = {
-  GOOGLE_CLIENT_ID: string;
-  JWT_SECRET: string;
-}
+// This creates a TypeScript type automatically from your schema
+export type Product = z.infer<typeof ProductSchema>;
+
+export const EnvSchema = z.object({
+  DB: z.custom<D1Database>(),
+  JWT_SECRET: z.string().min(10),
+  GOOGLE_CLIENT_ID: z.string(),
+});
+
+export type Bindings = z.infer<typeof EnvSchema>;
